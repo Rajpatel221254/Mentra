@@ -7,7 +7,6 @@ export async function loginController(req, res) {}
 
 export async function registerController(req, res) {
   
-
 }
 
 export async function verifyEmailController(req, res) {}
