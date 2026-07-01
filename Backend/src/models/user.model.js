@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = mongoose.Schema(
   {
@@ -25,7 +26,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      select: false,
     },
     isEmailVerified: {
       type: Boolean,
@@ -34,6 +35,17 @@ const userSchema = mongoose.Schema(
     avatar: {
       type: String,
       default: null,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "local_google"],
+      default: "local",
     },
     bio: {
       type: String,
@@ -65,6 +77,17 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true },
 );
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+userSchema.methods.comparePassword = function (candidatePassword) {
+  if (!this.password) return false;
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
 
 const userModel = mongoose.model("user", userSchema);
 
