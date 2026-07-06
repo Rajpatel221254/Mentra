@@ -167,6 +167,6 @@ export const googleAuthController = asyncHandler(async (req, res) => {
 export const getMeController = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
-    user: toPublicUser(req.user),
+    user: await toPublicUser(req.user),
   });
 });

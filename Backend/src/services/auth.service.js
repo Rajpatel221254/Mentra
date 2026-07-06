@@ -6,6 +6,7 @@ import SessionModel from "../models/session.model.js";
 import VerificationTokenModel from "../models/verification-token.model.js";
 import PasswordResetTokenModel from "../models/password-reset-token.model.js";
 import { sendEmail } from "./mail.service.js";
+import storageService from "./storage.service.js";
 import {
   addDays,
   addMinutes,
@@ -19,13 +20,29 @@ import { ApiError } from "../utils/api-error.js";
 
 const googleClient = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
-function publicUser(user) {
+function isExternalUrl(value) {
+  return typeof value === "string" && /^https?:\/\//i.test(value);
+}
+
+async function getAvatarUrl(avatar) {
+  if (!avatar || isExternalUrl(avatar)) {
+    return avatar || null;
+  }
+
+  try {
+    return await storageService.getSignedUrl(avatar);
+  } catch {
+    return null;
+  }
+}
+
+async function publicUser(user) {
   return {
     id: user._id,
     username: user.username,
     fullname: user.fullname,
     email: user.email,
-    avatar: user.avatar,
+    avatar: await getAvatarUrl(user.avatar),
     bio: user.bio,
     role: user.role,
     isEmailVerified: user.isEmailVerified,
@@ -159,7 +176,7 @@ export async function registerUser({ body, file, uploadFile }) {
   await sendVerificationEmail(user);
 
   return {
-    user: publicUser(user),
+    user: await publicUser(user),
     uploadFile: uploadedAvatar,
   };
 }
@@ -226,7 +243,7 @@ export async function loginUser({ email, password, req }) {
 
   return {
     ...tokens,
-    user: publicUser(user),
+    user: await publicUser(user),
   };
 }
 
@@ -262,7 +279,7 @@ export async function refreshSession(refreshToken, req) {
 
   return {
     ...tokens,
-    user: publicUser(user),
+    user: await publicUser(user),
   };
 }
 
@@ -375,7 +392,7 @@ export async function googleLogin({ idToken, req }) {
 
   return {
     ...tokens,
-    user: publicUser(user),
+    user: await publicUser(user),
   };
 }
 

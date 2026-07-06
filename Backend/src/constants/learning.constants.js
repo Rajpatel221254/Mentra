@@ -1,0 +1,30 @@
+export const ALLOWED_COLORS = [
+  "blue",
+  "green",
+  "purple",
+  "pink",
+  "orange",
+  "red",
+  "yellow",
+  "teal",
+  "cyan",
+  "gray",
+];
+
+export const ALLOWED_ICONS = [
+  "book-open",
+  "graduation-cap",
+  "calculator",
+  "flask-conical",
+  "languages",
+  "code",
+  "palette",
+  "music",
+  "globe",
+  "briefcase",
+  "atom",
+  "pen-tool",
+  "notebook",
+  "brain",
+  "target",
+];

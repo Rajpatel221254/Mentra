@@ -26,7 +26,7 @@ import {
   registerValidator,
   resendVerificationValidator,
   resetPasswordValidator,
-} from "../../validators/auth.validator.js";
+} from "../validators/auth.validator.js";
 
 const authRouter = express.Router();
 
