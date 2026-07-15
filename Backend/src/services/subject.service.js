@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
 import SubjectModel from "../models/subject.model.js";
+import FolderModel from "../models/folder.model.js";
+import ResourceModel from "../models/resource.model.js";
 import {
   getOwnedWorkspace,
 } from "./workspace.service.js";
+import storageService from "./storage.service.js";
 import { ApiError } from "../utils/api-error.js";
 
 function assertObjectId(id, label) {
@@ -19,7 +22,7 @@ function duplicateTitleError(error) {
   throw error;
 }
 
-async function getOwnedSubject(ownerId, subjectId) {
+export async function getOwnedSubject(ownerId, subjectId) {
   assertObjectId(subjectId, "Subject id");
 
   const subject = await SubjectModel.findById(subjectId);
@@ -86,6 +89,24 @@ export async function updateSubject(ownerId, subjectId, payload) {
 
 export async function deleteSubject(ownerId, subjectId) {
   const subject = await getOwnedSubject(ownerId, subjectId);
+
+  // Cascade: delete S3 files for all FILE resources in this subject
+  const fileResources = await ResourceModel.find({
+    subject: subject._id,
+    type: "FILE",
+    storageKey: { $ne: null },
+  }).select("storageKey");
+
+  await Promise.allSettled(
+    fileResources.map((r) => storageService.deleteFile(r.storageKey)),
+  );
+
+  // Delete all resources and folders in this subject
+  await Promise.all([
+    ResourceModel.deleteMany({ subject: subject._id }),
+    FolderModel.deleteMany({ subject: subject._id }),
+  ]);
+
   await SubjectModel.deleteOne({ _id: subject._id });
 }
 

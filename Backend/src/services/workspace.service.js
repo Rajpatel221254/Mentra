@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import WorkspaceModel from "../models/workspace.model.js";
 import SubjectModel from "../models/subject.model.js";
+import FolderModel from "../models/folder.model.js";
+import ResourceModel from "../models/resource.model.js";
+import storageService from "./storage.service.js";
 import { ApiError } from "../utils/api-error.js";
 
 const SORT_MAP = {
@@ -124,6 +127,29 @@ export async function deleteWorkspace(ownerId, workspaceId) {
   const workspace = await getOwnedWorkspace(ownerId, workspaceId, {
     includeArchived: true,
   });
+
+  const subjectIds = await SubjectModel.find({
+    workspace: workspace._id,
+  }).distinct("_id");
+
+  if (subjectIds.length) {
+    // Cascade: delete S3 files
+    const fileResources = await ResourceModel.find({
+      subject: { $in: subjectIds },
+      type: "FILE",
+      storageKey: { $ne: null },
+    }).select("storageKey");
+
+    await Promise.allSettled(
+      fileResources.map((r) => storageService.deleteFile(r.storageKey)),
+    );
+
+    // Delete all resources and folders
+    await Promise.all([
+      ResourceModel.deleteMany({ subject: { $in: subjectIds } }),
+      FolderModel.deleteMany({ subject: { $in: subjectIds } }),
+    ]);
+  }
 
   await SubjectModel.deleteMany({ workspace: workspace._id });
   await WorkspaceModel.deleteOne({ _id: workspace._id });

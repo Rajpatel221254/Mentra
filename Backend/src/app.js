@@ -40,6 +40,10 @@ import authRouter from "./routes/auth.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import workspaceRouter from "./routes/workspace.routes.js";
 import subjectRouter from "./routes/subject.routes.js";
+import folderRouter from "./routes/folder.routes.js";
+import noteRouter from "./routes/note.routes.js";
+import fileRouter from "./routes/file.routes.js";
+import resourceRouter from "./routes/resource.routes.js";
 
 app.use("/api/auth/login", sensitiveAuthLimiter);
 app.use("/api/auth/forgot-password", sensitiveAuthLimiter);
@@ -49,6 +53,10 @@ app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/workspaces", workspaceRouter);
 app.use("/api/subjects", subjectRouter);
+app.use("/api/folders", folderRouter);
+app.use("/api/notes", noteRouter);
+app.use("/api/files", fileRouter);
+app.use("/api/resources", resourceRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
