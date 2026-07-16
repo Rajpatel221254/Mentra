@@ -44,6 +44,7 @@ import folderRouter from "./routes/folder.routes.js";
 import noteRouter from "./routes/note.routes.js";
 import fileRouter from "./routes/file.routes.js";
 import resourceRouter from "./routes/resource.routes.js";
+import aiRouter from "./ai/routes/ai.routes.js";
 
 app.use("/api/auth/login", sensitiveAuthLimiter);
 app.use("/api/auth/forgot-password", sensitiveAuthLimiter);
@@ -57,6 +58,16 @@ app.use("/api/folders", folderRouter);
 app.use("/api/notes", noteRouter);
 app.use("/api/files", fileRouter);
 app.use("/api/resources", resourceRouter);
+
+// AI routes — dedicated rate limiter (30 req/min) to prevent abuse
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 30,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { success: false, message: "Too many AI requests. Please slow down." },
+});
+app.use("/api/ai", aiLimiter, aiRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

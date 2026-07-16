@@ -2,8 +2,8 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-if(!process.env.PORT){
-    throw new Error("PORT is not defined in .env")
+if (!process.env.PORT) {
+  throw new Error("PORT is not defined in .env")
 }
 
 if (!process.env.GOOGLE_CLIENT_ID) {
@@ -30,6 +30,31 @@ if (!process.env.MONGO_URL) {
   throw new Error("MONGO_URL is not defined in .env");
 }
 
+if (!process.env.OPENROUTER_API_KEY) {
+  throw new Error("OPENROUTER_API_KEY is not defined in .env")
+}
+
+if (!process.env.AI_LOG_LEVEL) {
+  throw new Error("AI_LOG_LEVEL is not defined in .env")
+}
+
+if (!process.env.OPENROUTER_BASE_URL) {
+  throw new Error("OPENROUTER_BASE_URL is not defined in .env")
+}
+
+
+if (!process.env.OPENROUTER_MODEL) {
+  throw new Error("OPENROUTER_MODEL is not defined in .env")
+}
+
+if (!process.env.AI_MAX_CONTEXT_MESSAGES) {
+  throw new Error("AI_MAX_CONTEXT_MESSAGES is not defined in .env")
+}
+
+if(!process.env.AI_REQUEST_TIMEOUT_MS){
+  throw new Error("AI_REQUEST_TIMEOUT_MS is not defined in .env")
+}
+
 export const config = {
   PORT: process.env.PORT,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
@@ -45,4 +70,10 @@ export const config = {
   REFRESH_TOKEN_COOKIE_NAME: process.env.REFRESH_TOKEN_COOKIE_NAME || "mentra_refresh_token",
   NODE_ENV: process.env.NODE_ENV || "development",
   COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE || "lax",
+  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  AI_LOG_LEVEL: process.env.AI_LOG_LEVEL || "db",
+  OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1",
+OPENROUTER_MODEL: process.env.OPENROUTER_MODEL ,
+AI_MAX_CONTEXT_MESSAGES: process.env.AI_MAX_CONTEXT_MESSAGES,
+AI_REQUEST_TIMEOUT_MS: process.env.AI_REQUEST_TIMEOUT_MS
 };
